@@ -68,7 +68,7 @@ export default function LocationPanel({ selectedId, onSelect }: LocationPanelPro
           </p>
 
           <ul className="max-h-[420px] space-y-2 overflow-y-auto">
-            {locations.length === 0 && (
+            {locations?.length === 0 && (
               <li className="rounded-xl border border-dashed border-white/10 px-4 py-8 text-center text-sm text-slate-500">
                 {isSearching
                   ? 'No locations match your search.'
@@ -76,7 +76,7 @@ export default function LocationPanel({ selectedId, onSelect }: LocationPanelPro
               </li>
             )}
 
-            {locations.map((location) => {
+            {locations?.map((location) => {
               const isSelected = selectedId === location.id
               return (
                 <li key={location.id}>
@@ -91,7 +91,7 @@ export default function LocationPanel({ selectedId, onSelect }: LocationPanelPro
                   >
                     <p className="font-medium text-white">{location.city}</p>
                     <p className="text-xs text-slate-400">
-                      {location.latitude.toFixed(2)}°, {location.longitude.toFixed(2)}°
+                      {parseFloat(String(location?.latitude)).toFixed(4)}°, {parseFloat(String(location?.longitude)).toFixed(4)}°
                     </p>
                   </button>
                 </li>
