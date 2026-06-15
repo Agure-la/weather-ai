@@ -1,17 +1,26 @@
 import api from './axios'
-import type { CreateLocationRequest, LocationResponse } from '../types/location'
+import type { LocationResponse, PageResponse } from '../types/location'
 
-export const createLocation = async (request: CreateLocationRequest) => {
-  const response = await api.post<LocationResponse>('/api/v1/locations', request)
+const DEFAULT_PAGE = 0
+const DEFAULT_SIZE = 20
+
+export const getAllLocations = async (page = DEFAULT_PAGE, size = DEFAULT_SIZE) => {
+  const response = await api.get<PageResponse<LocationResponse>>('/api/v1/locations', {
+    params: { page, size },
+  })
   return response.data
 }
 
-export const getLocations = async () => {
-  const response = await api.get<LocationResponse[]>('/api/v1/locations')
+export const searchLocations = async (city: string, page = DEFAULT_PAGE, size = DEFAULT_SIZE) => {
+  const response = await api.get<PageResponse<LocationResponse>>('/api/v1/locations/search', {
+    params: { city, page, size },
+  })
   return response.data
 }
 
-export const deleteLocation = async (id: string) => {
-  const response = await api.delete(`/api/v1/locations/${id}`)
+export const getLocationByCity = async (city: string) => {
+  const response = await api.get<LocationResponse>(
+    `/api/v1/locations/${encodeURIComponent(city)}`,
+  )
   return response.data
 }

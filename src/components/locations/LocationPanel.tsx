@@ -1,7 +1,7 @@
-import { useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { FiMapPin, FiPlus, FiTrash2 } from 'react-icons/fi'
-import { createLocation, deleteLocation, getLocations } from '../../api/locationApi'
+import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { FiMapPin, FiSearch } from 'react-icons/fi'
+import { getAllLocations, searchLocations } from '../../api/locationApi'
 import type { LocationResponse } from '../../types/location'
 import { formatError } from '../../utils/weatherHelpers'
 import GlassCard from '../ui/GlassCard'
@@ -13,111 +13,92 @@ interface LocationPanelProps {
   onSelect: (location: LocationResponse) => void
 }
 
+const PAGE_SIZE = 20
+
 export default function LocationPanel({ selectedId, onSelect }: LocationPanelProps) {
-  const queryClient = useQueryClient()
-  const [city, setCity] = useState('')
-  const [formError, setFormError] = useState('')
+  const [searchInput, setSearchInput] = useState('')
+  const [debouncedQuery, setDebouncedQuery] = useState('')
 
-  const { data: locations, isLoading, error } = useQuery({
-    queryKey: ['locations'],
-    queryFn: getLocations,
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQuery(searchInput.trim()), 350)
+    return () => clearTimeout(timer)
+  }, [searchInput])
+
+  const isSearching = debouncedQuery.length > 0
+
+  const { data, isLoading, error, isFetching } = useQuery({
+    queryKey: ['locations', isSearching ? 'search' : 'all', debouncedQuery],
+    queryFn: () =>
+      isSearching
+        ? searchLocations(debouncedQuery, 0, PAGE_SIZE)
+        : getAllLocations(0, PAGE_SIZE),
   })
 
-  const createMutation = useMutation({
-    mutationFn: createLocation,
-    onSuccess: (location) => {
-      queryClient.invalidateQueries({ queryKey: ['locations'] })
-      setCity('')
-      setFormError('')
-      onSelect(location)
-    },
-    onError: (err) => setFormError(formatError(err)),
-  })
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteLocation,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['locations'] }),
-  })
-
-  const handleCreate = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!city.trim()) return
-    createMutation.mutate({ city: city.trim() })
-  }
+  const locations = data?.content ?? []
 
   return (
     <GlassCard className="h-full">
       <div className="mb-5 flex items-center gap-2">
         <FiMapPin className="text-sky-400" />
-        <h2 className="text-lg font-semibold text-white">Your Locations</h2>
+        <h2 className="text-lg font-semibold text-white">Search Locations</h2>
       </div>
 
-      <form onSubmit={handleCreate} className="mb-5 flex gap-2">
+      <div className="relative mb-5">
+        <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
         <input
           type="text"
-          placeholder="Add a city (e.g. Nairobi)"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          className="flex-1 rounded-xl border border-white/10 bg-slate-900/50 px-4 py-2.5 text-sm text-white outline-none transition focus:border-sky-400/50"
+          placeholder="Search by city name..."
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          className="w-full rounded-xl border border-white/10 bg-slate-900/50 py-2.5 pl-10 pr-4 text-sm text-white outline-none transition focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/20"
         />
-        <button
-          type="submit"
-          disabled={createMutation.isPending}
-          className="inline-flex items-center gap-1 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-sky-400 disabled:opacity-60"
-        >
-          <FiPlus />
-          Add
-        </button>
-      </form>
-
-      {formError && <div className="mb-4"><ErrorMessage message={formError} /></div>}
+      </div>
 
       {isLoading && <LoadingSpinner label="Loading locations..." />}
 
       {error && <ErrorMessage message={formatError(error)} />}
 
       {!isLoading && !error && (
-        <ul className="space-y-2">
-          {locations?.length === 0 && (
-            <li className="rounded-xl border border-dashed border-white/10 px-4 py-8 text-center text-sm text-slate-500">
-              No locations yet. Add a city to get started.
-            </li>
-          )}
+        <>
+          <p className="mb-3 text-xs text-slate-500">
+            {isSearching
+              ? `${data?.totalElements ?? 0} result(s) for "${debouncedQuery}"`
+              : `${data?.totalElements ?? 0} available location(s)`}
+            {isFetching && !isLoading && ' · updating...'}
+          </p>
 
-          {locations?.map((location) => {
-            const isSelected = selectedId === location.id
-            return (
-              <li key={location.id}>
-                <div
-                  className={`flex items-center justify-between rounded-xl border px-4 py-3 transition ${
-                    isSelected
-                      ? 'border-sky-400/50 bg-sky-500/10'
-                      : 'border-white/10 bg-white/5 hover:border-white/20'
-                  }`}
-                >
+          <ul className="max-h-[420px] space-y-2 overflow-y-auto">
+            {locations.length === 0 && (
+              <li className="rounded-xl border border-dashed border-white/10 px-4 py-8 text-center text-sm text-slate-500">
+                {isSearching
+                  ? 'No locations match your search.'
+                  : 'No locations available.'}
+              </li>
+            )}
+
+            {locations.map((location) => {
+              const isSelected = selectedId === location.id
+              return (
+                <li key={location.id}>
                   <button
                     type="button"
                     onClick={() => onSelect(location)}
-                    className="flex-1 text-left"
+                    className={`w-full rounded-xl border px-4 py-3 text-left transition ${
+                      isSelected
+                        ? 'border-sky-400/50 bg-sky-500/10 ring-1 ring-sky-400/30'
+                        : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
+                    }`}
                   >
                     <p className="font-medium text-white">{location.city}</p>
                     <p className="text-xs text-slate-400">
                       {location.latitude.toFixed(2)}°, {location.longitude.toFixed(2)}°
                     </p>
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => deleteMutation.mutate(location.id)}
-                    className="ml-2 rounded-lg p-2 text-slate-500 transition hover:bg-rose-500/10 hover:text-rose-400"
-                    aria-label={`Delete ${location.city}`}
-                  >
-                    <FiTrash2 />
-                  </button>
-                </div>
-              </li>
-            )
-          })}
-        </ul>
+                </li>
+              )
+            })}
+          </ul>
+        </>
       )}
     </GlassCard>
   )

@@ -60,3 +60,13 @@ export const formatError = (error: unknown): string => {
   if (error instanceof Error) return error.message
   return 'Something went wrong. Please try again.'
 }
+
+export const formatCoordinates = (
+  latitude: number | null | undefined,
+  longitude: number | null | undefined,
+): string => {
+  if (latitude == null || longitude == null) return 'Coordinates pending'
+  return `${latitude.toFixed(2)}°, ${longitude.toFixed(2)}°`
+}
+
+export const locationId = (id: string | number): string => String(id)

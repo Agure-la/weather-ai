@@ -41,7 +41,7 @@ export default function DashboardPage() {
       <div>
         <h1 className="text-2xl font-bold text-white sm:text-3xl">Weather Dashboard</h1>
         <p className="mt-1 text-slate-400">
-          Manage locations and explore real-time weather intelligence
+          Search for a location and explore real-time weather intelligence
         </p>
       </div>
 
