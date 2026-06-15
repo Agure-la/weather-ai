@@ -20,28 +20,35 @@ const buildParams = (request?: WeatherRequest) => {
 }
 
 export const getCurrentWeather = async (request?: WeatherRequest) => {
-  const response = await api.get<CurrentWeather>('/api/v1/weather/current', {
-    params: buildParams(request),
-  })
+  const response = await api.post<CurrentWeather>(
+    '/api/v1/weather/current',
+    {
+      city: request?.city ?? request?.cityName,
+      ai: request?.ai,
+      units: request?.units,
+      lang: request?.lang,
+    }
+  )
+
   return response.data
 }
 
 export const getForecastWeather = async (request?: WeatherRequest) => {
-  const response = await api.get<ForecastWeather>('/api/v1/weather/forecast', {
+  const response = await api.post<ForecastWeather>('/api/v1/weather/forecast', {
     params: buildParams(request),
   })
   return response.data
 }
 
 export const getHourlyWeather = async (request?: WeatherRequest) => {
-  const response = await api.get<HourlyWeather>('/api/v1/weather/hourly', {
+  const response = await api.post<HourlyWeather>('/api/v1/weather/hourly', {
     params: buildParams(request),
   })
   return response.data
 }
 
 export const getDailyWeather = async (request?: WeatherRequest) => {
-  const response = await api.get<DailyWeather>('/api/v1/weather/daily', {
+  const response = await api.post<DailyWeather>('/api/v1/weather/daily', {
     params: buildParams(request),
   })
   return response.data
