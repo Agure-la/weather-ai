@@ -7,16 +7,16 @@ import type {
   WeatherRequest,
 } from '../types/weather'
 
-const buildParams = (request?: WeatherRequest) => {
+const buildWeatherRequest = (request?: WeatherRequest) => {
   if (!request) return undefined
-  const params: Record<string, string | number | boolean> = {}
-  const city = request.city ?? request.cityName
-  if (city) params.city = city
-  if (request.days != null) params.days = request.days
-  if (request.ai != null) params.ai = request.ai
-  if (request.units) params.units = request.units
-  if (request.lang) params.lang = request.lang
-  return params
+
+  return {
+    city: request.city ?? request.cityName,
+    days: request.days,
+    ai: request.ai,
+    units: request.units,
+    lang: request.lang,
+  }
 }
 
 export const getCurrentWeather = async (request?: WeatherRequest) => {
@@ -43,15 +43,17 @@ export const getForecastWeather = async (request?: WeatherRequest) => {
 }
 
 export const getHourlyWeather = async (request?: WeatherRequest) => {
-  const response = await api.post<HourlyWeather>('/api/v1/weather/hourly', {
-    params: buildParams(request),
-  })
+   const response = await api.post<HourlyWeather>(
+    '/api/v1/weather/hourly',
+    buildWeatherRequest(request)
+  )
   return response.data
 }
 
 export const getDailyWeather = async (request?: WeatherRequest) => {
-  const response = await api.post<DailyWeather>('/api/v1/weather/daily', {
-    params: buildParams(request),
-  })
+   const response = await api.post<DailyWeather>(
+    '/api/v1/weather/daily',
+    buildWeatherRequest(request)
+  )
   return response.data
 }
