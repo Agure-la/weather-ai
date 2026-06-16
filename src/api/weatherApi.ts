@@ -1,6 +1,5 @@
 import api from './axios'
 import type {
-  CurrentWeather,
   DailyWeather,
   ForecastWeather,
   HourlyWeather,
@@ -20,7 +19,7 @@ const buildWeatherRequest = (request?: WeatherRequest) => {
 }
 
 export const getCurrentWeather = async (request?: WeatherRequest) => {
-  const response = await api.post<CurrentWeather>(
+  const response = await api.post<ForecastWeather>(
     '/api/v1/weather/current',
     {
       city: request?.city ?? request?.cityName,
