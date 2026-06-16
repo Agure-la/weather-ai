@@ -48,25 +48,30 @@ export interface ForecastDay {
 }
 
 export interface HourlyForecast {
-  time?: string
-  hour?: string
-  temperature?: number
-  temp?: number
-  description?: string
-  condition?: string
-  icon?: string
-  precipitation?: number
-  humidity?: number
-  [key: string]: unknown
+  condition_code: string
+  feels_like: number
+  humidity: number
+  icon: string
+  icon_path: string
+  precipitation_probability: number
+  temperature: number
+  time: string
+  uv_index: number
+  wind_gust: number
+  wind_speed: number
 }
 
+
 export interface ForecastWeather {
-  city?: string
-  days?: ForecastDay[]
-  forecast?: ForecastDay[]
+  current?: HourlyForecast
+  hourly?: HourlyForecast[]
+  location?: {
+    country: string
+    lat: number
+    lon: number
+    timezone: string
+  }
   aiSummary?: string
-  summary?: string
-  [key: string]: unknown
 }
 
 export interface DailyWeather {
