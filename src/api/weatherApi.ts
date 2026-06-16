@@ -34,9 +34,11 @@ export const getCurrentWeather = async (request?: WeatherRequest) => {
 }
 
 export const getForecastWeather = async (request?: WeatherRequest) => {
-  const response = await api.post<ForecastWeather>('/api/v1/weather/forecast', {
-    params: buildParams(request),
-  })
+  const response = await api.post<ForecastWeather>(
+    '/api/v1/weather/forecast',
+    request
+  )
+
   return response.data
 }
 

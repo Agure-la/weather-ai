@@ -7,6 +7,12 @@ export interface WeatherRequest {
   lang?: string
 }
 
+export interface ForecastRequest {
+  city: string
+  days?: number
+  ai?: boolean
+}
+
 export interface CurrentWeather {
   city?: string
   temperature?: number
