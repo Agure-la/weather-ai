@@ -1,6 +1,5 @@
 import api from './axios'
 import type {
-  DailyWeather,
   ForecastWeather,
   HourlyWeather,
   WeatherRequest,
@@ -50,9 +49,16 @@ export const getHourlyWeather = async (request?: WeatherRequest) => {
 }
 
 export const getDailyWeather = async (request?: WeatherRequest) => {
-   const response = await api.post<DailyWeather>(
+   const response = await api.post<ForecastWeather>(
     '/api/v1/weather/daily',
     buildWeatherRequest(request)
   )
   return response.data
 }
+
+export const getWeatherSummary = async (request?: WeatherRequest) => {
+  const response = await api.post<{ summary: string }>(
+    '/api/v1/weather', buildWeatherRequest(request)
+  )
+  return response.data
+}    

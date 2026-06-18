@@ -24,7 +24,7 @@ export default function DashboardPage() {
     const saved = sessionStorage.getItem('selected-location')
     if (saved) {
       try {
-        setSelectedLocation(JSON.parse(saved))
+        return JSON.parse(saved)
       } catch {
         sessionStorage.removeItem('selected-location')
       }
