@@ -1,19 +1,21 @@
 import { useEffect, useState } from 'react'
-import { FiCalendar, FiClock, FiCloud, FiSun } from 'react-icons/fi'
+import { FiCalendar, FiClock, FiCloud, FiSun ,FiFileText} from 'react-icons/fi'
 import LocationPanel from '../components/locations/LocationPanel'
 import CurrentWeatherCard from '../components/weather/CurrentWeatherCard'
 import ForecastView from '../components/weather/ForecastView'
 import HourlyView from '../components/weather/HourlyView'
 import DailyView from '../components/weather/DailyView'
+import WeatherSummaryView from '../components/weather/WeatherSummaryView'
 import type { LocationResponse } from '../types/location'
 
-type WeatherTab = 'current' | 'forecast' | 'hourly' | 'daily'
+type WeatherTab = 'current' | 'forecast' | 'hourly' | 'daily' | 'summary'
 
 const tabs: { id: WeatherTab; label: string; icon: typeof FiSun }[] = [
   { id: 'current', label: 'Current', icon: FiSun },
   { id: 'forecast', label: 'Forecast', icon: FiCloud },
   { id: 'hourly', label: 'Hourly', icon: FiClock },
   { id: 'daily', label: 'Daily', icon: FiCalendar },
+  { id: 'summary', label: 'Summary', icon: FiFileText },
 ]
 
 export default function DashboardPage() {
@@ -74,6 +76,7 @@ export default function DashboardPage() {
           {activeTab === 'forecast' && <ForecastView location={selectedLocation} />}
           {activeTab === 'hourly' && <HourlyView location={selectedLocation} />}
           {activeTab === 'daily' && <DailyView location={selectedLocation} />}
+          {activeTab === 'summary' && <WeatherSummaryView location={selectedLocation} />}
         </div>
       </div>
     </div>
